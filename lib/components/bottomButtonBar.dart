@@ -23,7 +23,7 @@ class BottomButtonBar extends StatelessWidget {
               padding: const EdgeInsets.all(10.0),
               child: CustomElevatedButton(
                 icon: Icons.delete_sharp,
-                color: Color(0xFF220059),
+                color: Colors.deepPurple[800]!,
                 padding: 20.0,
                 size: 30.0,
                 iconColor: Colors.red.shade900,
@@ -34,7 +34,7 @@ class BottomButtonBar extends StatelessWidget {
               padding: const EdgeInsets.all(10.0),
               child: CustomElevatedButton(
                 icon: Icons.add,
-                color: Color(0xFF220059),
+                color: Colors.deepPurple[800]!,
                 padding: 20.0,
                 size: 30.0,
                 iconColor: Colors.white,

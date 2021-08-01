@@ -32,7 +32,7 @@ class HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        title: "Home",
+        title: "My Check Lists",
       ),
       backgroundColor: Colors.grey,
       body: Stack(
