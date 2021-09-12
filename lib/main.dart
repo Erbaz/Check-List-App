@@ -1,6 +1,5 @@
 import 'package:check_list_app/data/moorDatabase.dart';
 import 'package:check_list_app/screens/home.dart';
-import 'package:check_list_app/screens/tasks.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

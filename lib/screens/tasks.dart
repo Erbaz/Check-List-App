@@ -20,7 +20,7 @@ class TasksState extends State<Tasks> {
   }
 
   showInputDialog(BuildContext context){
-    return showDialog(context: context, builder: (context)=>CustomAlertBox(title: "Add Task",));
+    return showDialog(context: context, builder: (context)=>CustomAlertBox(title: "Add Task", onSubmit: (){},));
   }
 
   @override

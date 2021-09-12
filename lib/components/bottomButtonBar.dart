@@ -12,7 +12,7 @@ class BottomButtonBar extends StatelessWidget {
       alignment: Alignment.bottomCenter,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white70,
+          color: Colors.white.withOpacity(0.9),
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(15.0), topRight: Radius.circular(15.0)),
         ),

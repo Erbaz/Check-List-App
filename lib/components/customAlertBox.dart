@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 
 class CustomAlertBox extends StatelessWidget {
   final String title;
-  CustomAlertBox({ Key? key, required this.title }) : super(key: key);
-  TextEditingController inputController = TextEditingController();
+  final Function onSubmit;
+  CustomAlertBox({ Key? key, required this.title, required this.onSubmit }) : super(key: key);
+  final TextEditingController inputController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -12,7 +13,10 @@ class CustomAlertBox extends StatelessWidget {
       content: TextField(controller: inputController,),
       actions: [
         TextButton(
-          onPressed: (){}, 
+          onPressed: (){
+            onSubmit(context, inputController.text, DateTime.now());
+            Navigator.of(context).pop();
+          }, 
           child: Text(
             "Add"
           ))
@@ -20,3 +24,4 @@ class CustomAlertBox extends StatelessWidget {
     );
   }
 }
+// 

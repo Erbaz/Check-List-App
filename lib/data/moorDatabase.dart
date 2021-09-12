@@ -33,7 +33,7 @@ class AppDatabase extends _$AppDatabase {
   //Below we will create query methods for this class
   Future<List<CheckList>> getAllChecklists () => select(checkLists).get(); //Selects the table and GETs all rows
   Stream<List<CheckList>> watchAllChecklists () => select(checkLists).watch(); //Table stream will emit any changes using this method
-  Future insertCheckList(CheckList checkList) => into(checkLists).insert(checkList); //inserts an entity inside a table as a row
+  Future insertCheckList(checkList) => into(checkLists).insert(checkList); //inserts an entity inside a table as a row
   Future deleteCheckList(CheckList checkList) => delete(checkLists).delete(checkList); //deletes the specified entity from table
   Future updateCheckList(CheckList checkList) => update(checkLists).replace(checkList); //updates given entity in table
   Future deleteAllCheckLists() => delete(checkLists).go();
