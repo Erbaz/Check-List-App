@@ -1,4 +1,5 @@
 import 'package:check_list_app/components/bottomButtonBar.dart';
+import 'package:check_list_app/components/customAlertBox.dart';
 import 'package:check_list_app/components/customAppbar.dart';
 import 'package:check_list_app/customClasses/checkList.dart';
 import 'package:check_list_app/customClasses/task.dart';
@@ -26,6 +27,11 @@ class HomeState extends State<Home> {
     setState(() {
       checkLists.clear();
     });
+  }
+
+  showInputDialog(BuildContext context){
+    print('show input dialog');
+    showDialog(context: context, builder: (context)=>CustomAlertBox(title: "Add Checklist",));
   }
 
   @override
@@ -71,7 +77,7 @@ class HomeState extends State<Home> {
               itemCount: checkLists.length,
             ),
           ),
-          BottomButtonBar(deleteFunc: deleteAllCheckLists),
+          BottomButtonBar(deleteFunc: deleteAllCheckLists, addFunc: showInputDialog,),
         ],
       ),
     );

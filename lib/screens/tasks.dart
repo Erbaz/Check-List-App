@@ -1,4 +1,5 @@
 import 'package:check_list_app/components/bottomButtonBar.dart';
+import 'package:check_list_app/components/customAlertBox.dart';
 import 'package:check_list_app/components/customAppbar.dart';
 import 'package:flutter/material.dart';
 import 'package:check_list_app/customClasses/task.dart';
@@ -16,6 +17,10 @@ class TasksState extends State<Tasks> {
     setState(() {
       widget.tasks.clear();
     });
+  }
+
+  showInputDialog(BuildContext context){
+    return showDialog(context: context, builder: (context)=>CustomAlertBox(title: "Add Task",));
   }
 
   @override
@@ -63,6 +68,7 @@ class TasksState extends State<Tasks> {
           ),
           BottomButtonBar(
             deleteFunc: deleteAllTasks,
+            addFunc: showInputDialog,
           ),
         ],
       ),

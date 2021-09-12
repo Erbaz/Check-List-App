@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 
 class BottomButtonBar extends StatelessWidget {
   final Function deleteFunc;
-  BottomButtonBar({required this.deleteFunc});
+  final Function addFunc;
+  BottomButtonBar({required this.deleteFunc, required this.addFunc});
 
   @override
   Widget build(BuildContext context) {
@@ -38,9 +39,7 @@ class BottomButtonBar extends StatelessWidget {
                 padding: 20.0,
                 size: 30.0,
                 iconColor: Colors.white,
-                onPress: () {
-                  print("add");
-                },
+                onPress: ()=>addFunc(context),
               ),
             ),
           ],
