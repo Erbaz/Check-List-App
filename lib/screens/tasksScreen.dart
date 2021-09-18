@@ -2,25 +2,20 @@ import 'package:check_list_app/components/bottomButtonBar.dart';
 import 'package:check_list_app/components/customAlertBox.dart';
 import 'package:check_list_app/components/customAppbar.dart';
 import 'package:flutter/material.dart';
-import 'package:check_list_app/customClasses/task.dart';
-
-class Tasks extends StatefulWidget {
-  final List<Task> tasks;
-  const Tasks({required this.tasks});
+class TasksScreen extends StatefulWidget {
+  final int checkListId;
+  const TasksScreen({required this.checkListId});
   @override
-  TasksState createState() => TasksState();
+  TasksScreenState createState() => TasksScreenState();
 }
 
-class TasksState extends State<Tasks> {
+class TasksScreenState extends State<TasksScreen> {
   deleteAllTasks() {
-    print(widget.tasks);
-    setState(() {
-      widget.tasks.clear();
-    });
+
   }
 
   showInputDialog(BuildContext context){
-    return showDialog(context: context, builder: (context)=>CustomAlertBox(title: "Add Task", onSubmit: (){},));
+    return showDialog(context: context, builder: (context)=>CustomAlertBox(title: "Add Task", purpose: "Add", onSubmit: (){},));
   }
 
   @override
@@ -48,27 +43,25 @@ class TasksState extends State<Tasks> {
                         child: Container(
                           child: CheckboxListTile(
                             title: Text(
-                              widget.tasks[index]
-                                  .title, //bang operator removes null allowance
+                             '',
                               style: TextStyle(fontSize: 20.0),
                             ),
                             onChanged: (bool? value) {
-                              setState(() {
-                                widget.tasks[index].completed = value ?? false;
-                              });
+                             
                             },
-                            value: widget.tasks[index].completed,
+                            value: false,
                           ),
                         ),
                       ))),
                 );
               },
-              itemCount: widget.tasks.length,
+              itemCount: 0,
             ),
           ),
           BottomButtonBar(
             deleteFunc: deleteAllTasks,
             addFunc: showInputDialog,
+            scrollFunc: (){},
           ),
         ],
       ),
