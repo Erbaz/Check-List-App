@@ -8,14 +8,35 @@ import 'package:moor/moor.dart';
 import 'package:provider/provider.dart';
 class TasksScreen extends StatefulWidget {
   final int checkListId;
-  const TasksScreen({required this.checkListId});
+  final String checkListName;
+  const TasksScreen({required this.checkListId, required this.checkListName});
   @override
   TasksScreenState createState() => TasksScreenState();
 }
 
 class TasksScreenState extends State<TasksScreen> {
-  deleteAllTasks() {
 
+
+  deleteTasks(BuildContext context) {
+    final database = Provider.of<AppDatabase>(context, listen: false);
+    final tasksDao = database.tasksDao;
+
+    showDialog(context: context, builder: (context)=>
+      AlertDialog(  
+        title: Text("ATTENTION!"),  
+        content: Text("Are you sure you want to delete all tasks?"),  
+        actions: [  
+          TextButton(
+            onPressed: ()=>{
+              tasksDao.deleteTasks(widget.checkListId),
+              Navigator.of(context).pop()
+            }, 
+          child: Text("Ok")),  
+        ],  
+      )
+    );  
+
+    
   }
 
   addTask(BuildContext context, String toDo, DateTime createdAt){
@@ -32,12 +53,11 @@ class TasksScreenState extends State<TasksScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print('CheckListId =====> ${widget.checkListId}');
     final database = Provider.of<AppDatabase>(context);
     final tasksDao = database.tasksDao;
     return Scaffold(
       appBar: CustomAppBar(
-        title: "Tasks",
+        title: widget.checkListName,
       ),
       backgroundColor: Colors.grey,
       body: Stack(
@@ -48,13 +68,9 @@ class TasksScreenState extends State<TasksScreen> {
               stream: tasksDao.watchTasksCustom(widget.checkListId),
               builder: (context, AsyncSnapshot<List<Task>> snapshot) {
                 final tasks = snapshot.data ?? [];
-                print('tasks=====>${snapshot.data}');
                 return ListView.builder(
                   itemBuilder: (context, index) {
-                    print('task ========> ${tasks[index]}');
-                    debugPrint('task: ${tasks[index]}');
                     final task = tasks[index];
-                    print('task:::::>${task.toDo}'); 
                     return Padding(
                       padding: const EdgeInsets.all(6.0),
                       child: (Card(
@@ -70,10 +86,13 @@ class TasksScreenState extends State<TasksScreen> {
                                  task.toDo ,
                                   style: TextStyle(fontSize: 20.0),
                                 ),
+                                secondary: IconButton(onPressed: (){
+                                  tasksDao.deleteTask(task);
+                                }, icon: Icon(Icons.delete_rounded, color: Colors.redAccent,)),
                                 onChanged: (bool? value) {
-                                 
+                                  tasksDao.updateTask(task.copyWith(isComplete: value));
                                 },
-                                value: false,
+                                value: task.isComplete,
                               ),
                             ),
                           ))),
@@ -85,7 +104,7 @@ class TasksScreenState extends State<TasksScreen> {
             ),
           ),
           BottomButtonBar(
-            deleteFunc: deleteAllTasks,
+            deleteFunc: deleteTasks,
             addFunc: showInputDialog,
             scrollFunc: (){},
           ),

@@ -8,9 +8,6 @@ class BottomButtonBar extends StatelessWidget {
   final bool scrolledToBottom;
   BottomButtonBar({required this.deleteFunc, required this.addFunc, required this.scrollFunc, this.scrolledToBottom = false});
   
-  confirmDelete(){
-
-  }
 
   @override
   Widget build(BuildContext context) {

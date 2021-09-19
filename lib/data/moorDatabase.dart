@@ -43,12 +43,9 @@ class AppDatabase extends _$AppDatabase {
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) async {
       await m.createAll(); // create all tables
-      final TasksCompanion task = TasksCompanion.insert(checkListId: 1, toDo:'First'); 
-      await into(tasks).insert(task); // insert on first run.
     },
 
     onUpgrade: (migrator, from, to) async {
-      print('from version =====> $from');
       if(from == 5){
         await migrator.addColumn(tasks, tasks.checkListId);
       }
@@ -84,7 +81,12 @@ class CheckListsDao extends DatabaseAccessor<AppDatabase> with _$CheckListsDaoMi
 }
 
 
-@UseDao(tables:[Tasks, CheckLists])
+@UseDao(
+  tables:[Tasks, CheckLists], 
+  queries: {
+    'deleteTasks': 'DELETE FROM tasks WHERE check_list_id = :checkListId'
+  }  
+)
 class TasksDao extends DatabaseAccessor<AppDatabase> with _$TasksDaoMixin {
   TasksDao(AppDatabase db) : super(db);
 
@@ -120,5 +122,7 @@ class TasksDao extends DatabaseAccessor<AppDatabase> with _$TasksDaoMixin {
   }
 
   Future updateTask(Insertable<Task> task) => update(tasks).replace(task);
+  Future deleteTask(Insertable<Task> task) => delete(tasks).delete(task);
+  Future deleteAllTasks() => delete(tasks).go();
 
 }

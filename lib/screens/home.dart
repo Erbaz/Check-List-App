@@ -44,6 +44,7 @@ class HomeState extends State<Home> {
   deleteAllCheckLists(BuildContext context){
     final database = Provider.of<AppDatabase>(context, listen: false);
     final checkListsDao = database.checkListsDao;
+    final tasksDao = database.tasksDao;
     showDialog(context: context, builder: (context)=>
       AlertDialog(  
         title: Text("ATTENTION!"),  
@@ -52,6 +53,7 @@ class HomeState extends State<Home> {
           TextButton(
             onPressed: ()=>{
               checkListsDao.deleteAllCheckLists(),
+              tasksDao.deleteAllTasks(),
               Navigator.of(context).pop()
             }, 
           child: Text("Ok")),  
@@ -85,6 +87,7 @@ class HomeState extends State<Home> {
   Widget build(BuildContext context) {
     final database = Provider.of<AppDatabase>(context);
     final checkListsDao = database.checkListsDao;
+    final tasksDao = database.tasksDao;
     return Scaffold(
       appBar: CustomAppBar(
         title: "My Check Lists",
@@ -123,7 +126,7 @@ class HomeState extends State<Home> {
                                   onTap: () => Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) => TasksScreen( checkListId: checkLists[index].id),
+                                            builder: (context) => TasksScreen( checkListId: checkLists[index].id, checkListName: checkLists[index].checkListName),
                                         ),
                                   ),
                                   trailing: Wrap(
@@ -140,7 +143,10 @@ class HomeState extends State<Home> {
                                       IconButton(
                                         icon: Icon(Icons.delete_sharp, size: 25,),
                                         color: Colors.redAccent,
-                                        onPressed: ()=> checkListsDao.deleteCheckList(checkLists[index]),
+                                        onPressed: ()=> {
+                                          checkListsDao.deleteCheckList(checkLists[index]),
+                                          tasksDao.deleteTasks(checkLists[index].id)
+                                        },
                                       ),
                                     ],
                                   ),

@@ -537,4 +537,12 @@ mixin _$CheckListsDaoMixin on DatabaseAccessor<AppDatabase> {
 mixin _$TasksDaoMixin on DatabaseAccessor<AppDatabase> {
   $TasksTable get tasks => attachedDatabase.tasks;
   $CheckListsTable get checkLists => attachedDatabase.checkLists;
+  Future<int> deleteTasks(int checkListId) {
+    return customUpdate(
+      'DELETE FROM tasks WHERE check_list_id = :checkListId',
+      variables: [Variable<int>(checkListId)],
+      updates: {tasks},
+      updateKind: UpdateKind.delete,
+    );
+  }
 }
