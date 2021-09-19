@@ -440,9 +440,7 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
       const VerificationMeta('checkListId');
   late final GeneratedColumn<int?> checkListId = GeneratedColumn<int?>(
       'check_list_id', aliasedName, false,
-      typeName: 'INTEGER',
-      requiredDuringInsert: true,
-      $customConstraints: 'REFERENCES checkLists(id)');
+      typeName: 'INTEGER', requiredDuringInsert: true);
   final VerificationMeta _toDoMeta = const VerificationMeta('toDo');
   late final GeneratedColumn<String?> toDo = GeneratedColumn<String?>(
       'to_do', aliasedName, false,
@@ -538,4 +536,5 @@ mixin _$CheckListsDaoMixin on DatabaseAccessor<AppDatabase> {
 }
 mixin _$TasksDaoMixin on DatabaseAccessor<AppDatabase> {
   $TasksTable get tasks => attachedDatabase.tasks;
+  $CheckListsTable get checkLists => attachedDatabase.checkLists;
 }

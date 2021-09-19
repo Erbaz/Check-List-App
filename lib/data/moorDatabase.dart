@@ -11,13 +11,15 @@ class CheckLists extends Table {
   TextColumn get checkListName => text().withLength(min:1, max:50)();
   DateTimeColumn get createdAt => dateTime().nullable()();
 }
+
 class Tasks extends Table {
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get checkListId => integer().customConstraint('REFERENCES checkLists(id)')();
+  IntColumn get checkListId => integer()();
   TextColumn get toDo => text().withLength(min:1, max:100)();
   DateTimeColumn get createdAt => dateTime().nullable()();
   BoolColumn get isComplete => boolean().withDefault(Constant(false))();
 }
+
 
 LazyDatabase _openConnection() {
   // the LazyDatabase util lets us find the right location for the file async.
@@ -25,7 +27,7 @@ LazyDatabase _openConnection() {
     // put the database file, called db.sqlite here, into the documents folder
     // for your app.
     final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'db.sqlite'));
+    final file = File(p.join(dbFolder.path, 'db.sqlite1'));
     return VmDatabase(file);
   });
 }
@@ -34,17 +36,23 @@ LazyDatabase _openConnection() {
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
-  int get schemaVersion => 2;
+  int get schemaVersion => 6;
 
   @override
   // implement migration
   MigrationStrategy get migration => MigrationStrategy(
-    onUpgrade: (migrator, from, to) async {
-      if(from == 1){
-        await migrator.createTable(tasks);
-      }
+    onCreate: (m) async {
+      await m.createAll(); // create all tables
+      final TasksCompanion task = TasksCompanion.insert(checkListId: 1, toDo:'First'); 
+      await into(tasks).insert(task); // insert on first run.
+    },
 
-    }
+    onUpgrade: (migrator, from, to) async {
+      print('from version =====> $from');
+      if(from == 5){
+        await migrator.addColumn(tasks, tasks.checkListId);
+      }
+    },
   );
 }
 
@@ -76,12 +84,26 @@ class CheckListsDao extends DatabaseAccessor<AppDatabase> with _$CheckListsDaoMi
 }
 
 
-@UseDao(tables:[Tasks])
+@UseDao(tables:[Tasks, CheckLists])
 class TasksDao extends DatabaseAccessor<AppDatabase> with _$TasksDaoMixin {
   TasksDao(AppDatabase db) : super(db);
 
-  Future<List<Task>> getAllTasks () => select(tasks).get();
-  Stream<List<Task>> watchAllTasks (){
+  Stream <List<Task>> watchTasksCustom (checkListId){
+    return customSelect(
+      'SELECT * FROM tasks WHERE check_list_id = ?',
+      variables: [Variable.withInt(checkListId)],
+      readsFrom: {tasks},
+    ).watch().map(
+      (rows)=> rows.map(
+        (row){
+          print('row.data =====> ${row.data}');
+          return Task.fromData(row.data, db);
+        }
+      ).toList()
+    );
+  }
+
+  Stream<List<Task>> watchAllTasks (checkListId) {
     return (
       select(tasks)
       ..orderBy(
@@ -93,5 +115,10 @@ class TasksDao extends DatabaseAccessor<AppDatabase> with _$TasksDaoMixin {
       .watch();
   }
 
+  Future insertTask(Insertable<Task> task){
+    return into(tasks).insert(task);
+  }
+
+  Future updateTask(Insertable<Task> task) => update(tasks).replace(task);
 
 }
