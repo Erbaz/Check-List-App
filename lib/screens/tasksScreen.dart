@@ -47,8 +47,46 @@ class TasksScreenState extends State<TasksScreen> {
     tasksDao.insertTask(task);
   }
 
+  editTaskName(BuildContext context, String toDo, Task task){
+    final database = Provider.of<AppDatabase>(context, listen: false);
+    final tasksDao = database.tasksDao;
+    tasksDao.updateTask(task.copyWith(toDo: toDo));
+  }
+
   showInputDialog(BuildContext context){
     return showDialog(context: context, builder: (context)=>CustomAlertBox(title: "Add Task", purpose: "Add", onSubmit: addTask,));
+  }
+
+  showOptionsDialog(BuildContext context, Task task){
+     final database = Provider.of<AppDatabase>(context, listen: false);
+      final tasksDao = database.tasksDao;
+    return showDialog(
+      context: context, 
+      builder: (context)=>AlertDialog(
+        title: Text('Options'),
+        content: Row(
+          children: [
+            IconButton(onPressed: ()=>{
+              tasksDao.deleteTask(task),
+              Navigator.of(context).pop()
+            }, 
+            icon: Icon(Icons.delete, color: Colors.redAccent, size: 40.0,)),
+            SizedBox(width:10),
+            IconButton(onPressed: ()=>{
+              print('*******EDIT TASK*******'),
+              Navigator.of(context).pop(),
+              showDialog(
+                context: context, 
+                builder: (context)=>CustomAlertBox(title: "Edit Task", purpose: "Edit", onSubmit: editTaskName, task: task)
+              ),
+              
+            }, 
+            icon: Icon(Icons.edit, color:Colors.grey, size: 40.0))
+          ],
+        )
+      )
+    );
+
   }
 
   @override
@@ -81,18 +119,25 @@ class TasksScreenState extends State<TasksScreen> {
                           child: Padding(
                             padding: const EdgeInsets.all(10.0),
                             child: Container(
-                              child: CheckboxListTile(
-                                title: Text(
-                                 task.toDo ,
-                                  style: TextStyle(fontSize: 20.0),
-                                ),
-                                secondary: IconButton(onPressed: (){
-                                  tasksDao.deleteTask(task);
-                                }, icon: Icon(Icons.delete_rounded, color: Colors.redAccent,)),
-                                onChanged: (bool? value) {
-                                  tasksDao.updateTask(task.copyWith(isComplete: value));
+                              child: GestureDetector(
+                                onLongPress: (){
+                                  showOptionsDialog(context, task);
                                 },
-                                value: task.isComplete,
+                                child: CheckboxListTile(
+                                  contentPadding: EdgeInsets.all(0.0),
+                                  title: Text(
+                                   task.toDo ,
+                                    style: TextStyle(fontSize: 18.0),
+                                  ),
+                                  subtitle: Text(
+                                    'reminder set for: 2/10/2021'
+                                  ),
+                                  
+                                  onChanged: (bool? value) {
+                                    tasksDao.updateTask(task.copyWith(isComplete: value));
+                                  },
+                                  value: task.isComplete,
+                                ),
                               ),
                             ),
                           ))),

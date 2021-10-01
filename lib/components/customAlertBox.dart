@@ -7,24 +7,37 @@ class CustomAlertBox extends StatelessWidget {
   final String purpose;
   final Function onSubmit;
   final CheckList? checkList;
-  CustomAlertBox({ Key? key, required this.title, required this.purpose, required this.onSubmit, this.checkList }) : super(key: key);
+  final Task? task;
+  CustomAlertBox({ Key? key, required this.title, required this.purpose, required this.onSubmit, this.checkList, this.task }) : super(key: key);
   final TextEditingController inputController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title:Text(title),
-      content: TextField(controller: inputController,),
+      content: TextFormField(
+        controller: inputController, 
+        decoration: InputDecoration(
+          hintText: 'Enter Text'
+        ),  
+      ),
       actions: [
         TextButton(
           onPressed: (){
-            if(purpose == "Add"){
-              onSubmit(context, inputController.text, DateTime.now());
+            if(inputController.text.isEmpty ){
+              return;
             }
-            else if(purpose == "Edit"){
-              onSubmit(context, inputController.text, checkList);
+            else{
+              if(purpose == "Add"){
+                onSubmit(context, inputController.text, DateTime.now());
+              }
+              else if(purpose == "Edit"){
+                onSubmit(context, inputController.text, checkList ?? task);
+              }
+              Navigator.of(context).pop();
             }
             
-            Navigator.of(context).pop();
+            
+           
           }, 
           child: Text(
             purpose
