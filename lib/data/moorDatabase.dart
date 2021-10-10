@@ -18,6 +18,7 @@ class Tasks extends Table {
   TextColumn get toDo => text().withLength(min:1, max:100)();
   DateTimeColumn get createdAt => dateTime().nullable()();
   BoolColumn get isComplete => boolean().withDefault(Constant(false))();
+  DateTimeColumn get reminder => dateTime().nullable()();
 }
 
 
@@ -36,7 +37,7 @@ LazyDatabase _openConnection() {
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   // implement migration
@@ -46,8 +47,8 @@ class AppDatabase extends _$AppDatabase {
     },
 
     onUpgrade: (migrator, from, to) async {
-      if(from == 5){
-        await migrator.addColumn(tasks, tasks.checkListId);
+      if(from == 6){
+        await migrator.addColumn(tasks, tasks.reminder);
       }
     },
   );

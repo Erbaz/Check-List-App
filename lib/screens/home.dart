@@ -92,7 +92,7 @@ class HomeState extends State<Home> {
       appBar: CustomAppBar(
         title: "My Check Lists",
       ),
-      backgroundColor: Colors.grey,
+      backgroundColor: Colors.indigo[300],
       body: Stack(
         children: <Widget>[
           Padding(

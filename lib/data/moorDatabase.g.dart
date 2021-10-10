@@ -227,12 +227,14 @@ class Task extends DataClass implements Insertable<Task> {
   final String toDo;
   final DateTime? createdAt;
   final bool isComplete;
+  final DateTime? reminder;
   Task(
       {required this.id,
       required this.checkListId,
       required this.toDo,
       this.createdAt,
-      required this.isComplete});
+      required this.isComplete,
+      this.reminder});
   factory Task.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String? prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -247,6 +249,8 @@ class Task extends DataClass implements Insertable<Task> {
           .mapFromDatabaseResponse(data['${effectivePrefix}created_at']),
       isComplete: const BoolType()
           .mapFromDatabaseResponse(data['${effectivePrefix}is_complete'])!,
+      reminder: const DateTimeType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}reminder']),
     );
   }
   @override
@@ -259,6 +263,9 @@ class Task extends DataClass implements Insertable<Task> {
       map['created_at'] = Variable<DateTime?>(createdAt);
     }
     map['is_complete'] = Variable<bool>(isComplete);
+    if (!nullToAbsent || reminder != null) {
+      map['reminder'] = Variable<DateTime?>(reminder);
+    }
     return map;
   }
 
@@ -271,6 +278,9 @@ class Task extends DataClass implements Insertable<Task> {
           ? const Value.absent()
           : Value(createdAt),
       isComplete: Value(isComplete),
+      reminder: reminder == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reminder),
     );
   }
 
@@ -283,6 +293,7 @@ class Task extends DataClass implements Insertable<Task> {
       toDo: serializer.fromJson<String>(json['toDo']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
       isComplete: serializer.fromJson<bool>(json['isComplete']),
+      reminder: serializer.fromJson<DateTime?>(json['reminder']),
     );
   }
   @override
@@ -294,6 +305,7 @@ class Task extends DataClass implements Insertable<Task> {
       'toDo': serializer.toJson<String>(toDo),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
       'isComplete': serializer.toJson<bool>(isComplete),
+      'reminder': serializer.toJson<DateTime?>(reminder),
     };
   }
 
@@ -302,13 +314,15 @@ class Task extends DataClass implements Insertable<Task> {
           int? checkListId,
           String? toDo,
           DateTime? createdAt,
-          bool? isComplete}) =>
+          bool? isComplete,
+          DateTime? reminder}) =>
       Task(
         id: id ?? this.id,
         checkListId: checkListId ?? this.checkListId,
         toDo: toDo ?? this.toDo,
         createdAt: createdAt ?? this.createdAt,
         isComplete: isComplete ?? this.isComplete,
+        reminder: reminder ?? this.reminder,
       );
   @override
   String toString() {
@@ -317,7 +331,8 @@ class Task extends DataClass implements Insertable<Task> {
           ..write('checkListId: $checkListId, ')
           ..write('toDo: $toDo, ')
           ..write('createdAt: $createdAt, ')
-          ..write('isComplete: $isComplete')
+          ..write('isComplete: $isComplete, ')
+          ..write('reminder: $reminder')
           ..write(')'))
         .toString();
   }
@@ -328,7 +343,9 @@ class Task extends DataClass implements Insertable<Task> {
       $mrjc(
           checkListId.hashCode,
           $mrjc(
-              toDo.hashCode, $mrjc(createdAt.hashCode, isComplete.hashCode)))));
+              toDo.hashCode,
+              $mrjc(createdAt.hashCode,
+                  $mrjc(isComplete.hashCode, reminder.hashCode))))));
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -337,7 +354,8 @@ class Task extends DataClass implements Insertable<Task> {
           other.checkListId == this.checkListId &&
           other.toDo == this.toDo &&
           other.createdAt == this.createdAt &&
-          other.isComplete == this.isComplete);
+          other.isComplete == this.isComplete &&
+          other.reminder == this.reminder);
 }
 
 class TasksCompanion extends UpdateCompanion<Task> {
@@ -346,12 +364,14 @@ class TasksCompanion extends UpdateCompanion<Task> {
   final Value<String> toDo;
   final Value<DateTime?> createdAt;
   final Value<bool> isComplete;
+  final Value<DateTime?> reminder;
   const TasksCompanion({
     this.id = const Value.absent(),
     this.checkListId = const Value.absent(),
     this.toDo = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isComplete = const Value.absent(),
+    this.reminder = const Value.absent(),
   });
   TasksCompanion.insert({
     this.id = const Value.absent(),
@@ -359,6 +379,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     required String toDo,
     this.createdAt = const Value.absent(),
     this.isComplete = const Value.absent(),
+    this.reminder = const Value.absent(),
   })  : checkListId = Value(checkListId),
         toDo = Value(toDo);
   static Insertable<Task> custom({
@@ -367,6 +388,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     Expression<String>? toDo,
     Expression<DateTime?>? createdAt,
     Expression<bool>? isComplete,
+    Expression<DateTime?>? reminder,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -374,6 +396,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
       if (toDo != null) 'to_do': toDo,
       if (createdAt != null) 'created_at': createdAt,
       if (isComplete != null) 'is_complete': isComplete,
+      if (reminder != null) 'reminder': reminder,
     });
   }
 
@@ -382,13 +405,15 @@ class TasksCompanion extends UpdateCompanion<Task> {
       Value<int>? checkListId,
       Value<String>? toDo,
       Value<DateTime?>? createdAt,
-      Value<bool>? isComplete}) {
+      Value<bool>? isComplete,
+      Value<DateTime?>? reminder}) {
     return TasksCompanion(
       id: id ?? this.id,
       checkListId: checkListId ?? this.checkListId,
       toDo: toDo ?? this.toDo,
       createdAt: createdAt ?? this.createdAt,
       isComplete: isComplete ?? this.isComplete,
+      reminder: reminder ?? this.reminder,
     );
   }
 
@@ -410,6 +435,9 @@ class TasksCompanion extends UpdateCompanion<Task> {
     if (isComplete.present) {
       map['is_complete'] = Variable<bool>(isComplete.value);
     }
+    if (reminder.present) {
+      map['reminder'] = Variable<DateTime?>(reminder.value);
+    }
     return map;
   }
 
@@ -420,7 +448,8 @@ class TasksCompanion extends UpdateCompanion<Task> {
           ..write('checkListId: $checkListId, ')
           ..write('toDo: $toDo, ')
           ..write('createdAt: $createdAt, ')
-          ..write('isComplete: $isComplete')
+          ..write('isComplete: $isComplete, ')
+          ..write('reminder: $reminder')
           ..write(')'))
         .toString();
   }
@@ -459,9 +488,13 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
       requiredDuringInsert: false,
       defaultConstraints: 'CHECK (is_complete IN (0, 1))',
       defaultValue: Constant(false));
+  final VerificationMeta _reminderMeta = const VerificationMeta('reminder');
+  late final GeneratedColumn<DateTime?> reminder = GeneratedColumn<DateTime?>(
+      'reminder', aliasedName, true,
+      typeName: 'INTEGER', requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, checkListId, toDo, createdAt, isComplete];
+      [id, checkListId, toDo, createdAt, isComplete, reminder];
   @override
   String get aliasedName => _alias ?? 'tasks';
   @override
@@ -497,6 +530,10 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
           _isCompleteMeta,
           isComplete.isAcceptableOrUnknown(
               data['is_complete']!, _isCompleteMeta));
+    }
+    if (data.containsKey('reminder')) {
+      context.handle(_reminderMeta,
+          reminder.isAcceptableOrUnknown(data['reminder']!, _reminderMeta));
     }
     return context;
   }
