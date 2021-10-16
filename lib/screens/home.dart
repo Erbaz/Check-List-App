@@ -4,6 +4,7 @@ import 'package:check_list_app/components/customAppbar.dart';
 import 'package:check_list_app/data/moorDatabase.dart';
 import 'package:check_list_app/screens/tasksScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:moor/moor.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -83,6 +84,29 @@ class HomeState extends State<Home> {
     });
   }
 
+  Widget emptyDisplay (){
+    return Center(
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white30,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: SizedBox(
+          width:300,
+          height:300,
+          child: Center(child: Text(
+            "Empty. \n You can create a new category (e.g 'Chores'), using the \n '+' \n button. ",
+            style:TextStyle(
+              color:Colors.indigo[300],
+              fontSize: 20.00,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ))),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final database = Provider.of<AppDatabase>(context);
@@ -90,7 +114,7 @@ class HomeState extends State<Home> {
     final tasksDao = database.tasksDao;
     return Scaffold(
       appBar: CustomAppBar(
-        title: "My Check Lists",
+        title: "Categories",
       ),
       backgroundColor: Colors.indigo[300],
       body: Stack(
@@ -101,6 +125,9 @@ class HomeState extends State<Home> {
               stream: checkListsDao.watchAllChecklists(),
               builder: (context, AsyncSnapshot<List<CheckList>> snapshot){
                 final checkLists = snapshot.data ?? [];
+                if(checkLists.length == 0){
+                  return emptyDisplay();
+                }else{
                 return ListView.builder(
                   controller: scrollController,
                   itemBuilder: (context, index) =>
@@ -156,7 +183,7 @@ class HomeState extends State<Home> {
                   ),
                   
                   itemCount: checkLists.length + 1,
-                );
+                );}
               }
             )
           ),

@@ -98,12 +98,27 @@ class TasksScreenState extends State<TasksScreen> {
               
             }, 
             icon: Icon(Icons.edit, color:Colors.grey, size: 40.0)),
+            if(task.isComplete)
              SizedBox(width:10),
+             if(!task.isComplete)
             IconButton(onPressed: ()=>{
               dateTimePicker(context, task)
             }, 
               icon: Icon(Icons.notification_add, color: Colors.yellowAccent[700], size:40.0)
+            ),
+            if(task.reminder!=null && task.reminder!.millisecondsSinceEpoch != 0)
+            SizedBox(width:10),
+            if((task.reminder!=null && task.reminder!.millisecondsSinceEpoch != 0) && !task.isComplete)
+            IconButton(
+              onPressed:()=>{
+                flutterLocalNotificationsPlugin.cancel(task.id),
+                tasksDao.updateTask(task.copyWith(reminder:DateTime.fromMillisecondsSinceEpoch(0)))
+              },
+              icon:Icon(Icons.notifications_off, color: Colors.red[300], size:40.0),
             )
+
+
+           
           ],
         )
       )
@@ -121,6 +136,7 @@ class TasksScreenState extends State<TasksScreen> {
       'alarm_notif',
       'Channel for Alarm notification',
       icon: 'mipmap/ic_launcher',
+      importance: Importance.high,
       largeIcon: DrawableResourceAndroidBitmap('mipmap/ic_launcher'),
     );
     var iOSPlatformChannelSpecifics = IOSNotificationDetails(
@@ -174,6 +190,44 @@ class TasksScreenState extends State<TasksScreen> {
     }
   }
 
+  Color  colorDecider (bool completed, DateTime? reminder){
+    bool isBefore = reminder==null || reminder.millisecondsSinceEpoch == 0? false : reminder.isBefore(DateTime.now());
+
+    if(reminder == null || reminder.millisecondsSinceEpoch == 0 || completed == true){
+      return Colors.white;
+    }
+    else if(!isBefore){
+      return Colors.deepPurple[800]!;
+    }
+    else{
+      return Colors.red[400]!;
+    }
+  }
+
+  String subtitleTextDecider (bool completed, DateTime? reminder){
+     bool isBefore = reminder==null || reminder.millisecondsSinceEpoch == 0? false : reminder.isBefore(DateTime.now());
+    if(reminder == null || reminder.millisecondsSinceEpoch == 0 || completed == true){
+    return "(long press for options)";
+    }
+    else if(!isBefore){
+      return ("reminder: ${new DateFormat('dd/MM/yyyy hh:mm a').format(reminder)}" + "\n(long press for options");
+    }
+    else{
+      return "task is over due \n (long press for options";
+    }
+
+  }
+
+  Color textColorDecider(bool completed, DateTime? reminder){
+    bool isBefore = reminder==null || reminder.millisecondsSinceEpoch == 0? false : reminder.isBefore(DateTime.now());
+
+    if(reminder == null || reminder.millisecondsSinceEpoch == 0 || completed == true){
+      return Colors.black;
+    }
+    else {
+      return Colors.white;
+    }
+  }
 
 
   @override
@@ -201,7 +255,7 @@ class TasksScreenState extends State<TasksScreen> {
                       padding: const EdgeInsets.all(6.0),
                       child: (Card(
                           elevation: 10,
-                          color: task.reminder != null? task.reminder!.isBefore(DateTime.now())? Colors.white: Colors.deepPurple[800] : Colors.white,
+                          color: colorDecider(task.isComplete, task.reminder),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -218,21 +272,29 @@ class TasksScreenState extends State<TasksScreen> {
                                    task.toDo ,
                                     style: TextStyle(
                                       fontSize: 18.0,
-                                      color: task.reminder != null && task.reminder!.isAfter(DateTime.now())? Colors.white : Colors.black
+                                      color: textColorDecider(task.isComplete, task.reminder)
                                     ),
                                   ),
                                   subtitle: Padding(
                                     padding: const EdgeInsets.only(top:8.0),
                                     child: Text(
-                                      (task.reminder != null)? task.reminder!.isBefore(DateTime.now())?'(long press for options)':'reminder: ${new DateFormat('dd/MM/yyyy hh:mm a').format(task.reminder!)}'+'\n(long press for options)' : '(long press for options)',
+                                      subtitleTextDecider(task.isComplete, task.reminder),
                                       style: TextStyle(
-                                        color: task.reminder != null && task.reminder!.isAfter(DateTime.now())? Colors.white : Colors.black
+                                        color: textColorDecider(task.isComplete, task.reminder)
                                       ),
                                     ),
                                   ),
                                   
                                   onChanged: (bool? value) {
-                                    tasksDao.updateTask(task.copyWith(isComplete: value));
+                                    if(value == true && task.reminder != null){
+                                      tasksDao.updateTask(task.copyWith(isComplete: value, reminder:DateTime.fromMillisecondsSinceEpoch(0)));
+                                      flutterLocalNotificationsPlugin.cancel(task.id);
+                                    }
+                                    else{
+                                      tasksDao.updateTask(task.copyWith(isComplete: value));
+                                    }
+
+                                    //remove reminder notification function
                                   },
                                   value: task.isComplete,
                                 ),
